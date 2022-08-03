@@ -67,7 +67,8 @@ std = [
     "pallet-utility/std",
     "pallet-resource-order/std",
     "pallet-provider/std",
-    "pallet-gateway/std"
+    "pallet-gateway/std",
+    "pallet-market/std",
 ]
 [dependencies.codec]
 default-features = false
@@ -254,11 +255,15 @@ git = 'https://github.com/paritytech/substrate.git'
 tag = 'monthly-2021-07'
 version = '3.0.0'
 
+# [dependencies.pallet-staking]
+# default-features = false
+# git = 'https://github.com/paritytech/substrate.git'
+# tag = 'monthly-2021-07'
+# version = '3.0.0'
 
 [dependencies.pallet-staking]
 default-features = false
-git = 'https://github.com/paritytech/substrate.git'
-tag = 'monthly-2021-07'
+path = '../pallets/staking'
 version = '3.0.0'
 
 [dependencies.frame-election-provider-support]
@@ -315,17 +320,10 @@ git = 'https://github.com/paritytech/substrate.git'
 tag = 'monthly-2021-07'
 version = '3.0.0'
 
-[dependencies.pallet-resource-order]
-default-features = false
-path = '../pallets/resource-order'
-version = '3.0.0'
+[dependencies]
+pallet-resource-order = {default-features = false, path = '../pallets/resource-order', version = '3.0.0'}
+pallet-provider = {default-features = false, path = '../pallets/provider', version = '3.0.0'}
+pallet-gateway =  {default-features = false, path = '../pallets/gateway', version = '3.0.0'}
+pallet-burn = {default-features=false, path = '../pallets/burn', version = '3.0.0' }
+pallet-market = {default-features = false, path = '../pallets/market', version = '3.0.0' }
 
-[dependencies.pallet-provider]
-default-features = false
-path = '../pallets/provider'
-version = '3.0.0'
-
-[dependencies.pallet-gateway]
-default-features = false
-path = '../pallets/gateway'
-version = '3.0.0'

@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use sp_std::vec::Vec;
 use frame_support::Parameter;
 use sp_runtime::traits::AtLeast32BitUnsigned;
+use crate::EraIndex;
 
 
 /// ComputingResources
@@ -50,11 +51,6 @@ impl<BlockNumber, AccountId> ComputingResource<BlockNumber, AccountId>
         }
     }
 
-    /// update unit price
-    pub fn update_resource_price(&mut self, rent_unit_price: u128) {
-        self.rental_info.set_rent_unit_price(rent_unit_price);
-    }
-
     /// increase rental time
     pub fn add_resource_duration(&mut self,duration:BlockNumber) {
         self.rental_info.rent_duration += duration.clone();
@@ -64,6 +60,31 @@ impl<BlockNumber, AccountId> ComputingResource<BlockNumber, AccountId>
     /// update status
     pub fn update_status(&mut self, status: ResourceStatus) {
         self.status = status
+    }
+}
+
+/// Provider points
+#[derive(PartialEq, Eq, Clone, Encode, Decode, RuntimeDebug)]
+#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
+pub struct ProviderPoints {
+    pub total_points: u128,
+    pub resource_points: u64,
+    pub duration_points: u64,
+}
+
+impl ProviderPoints {
+    pub fn new(t_points: u128, r_points: u64, d_points: u64) -> Self {
+        ProviderPoints {
+            total_points: t_points,
+            resource_points: r_points,
+            duration_points: d_points,
+        }
+    }
+
+    pub fn updata_points(&mut self, r_points: u64, d_points: u64) {
+        self.duration_points += d_points;
+        self.resource_points += r_points;
+        self.total_points += (d_points + r_points) as u128;
     }
 }
 
@@ -161,7 +182,7 @@ impl ResourceRentalStatistics {
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 pub struct ResourceRentalInfo<BlockNumber> {
     /// rental unit price
-    pub rent_unit_price: u128,
+    // pub rent_unit_price: u128,
     /// provide rental time
     pub rent_duration: BlockNumber,
     /// end rental block
@@ -169,33 +190,31 @@ pub struct ResourceRentalInfo<BlockNumber> {
 }
 
 impl<BlockNumber> ResourceRentalInfo<BlockNumber> {
-    pub fn new(rent_unit_price: u128,
+    pub fn new(
                rent_duration: BlockNumber,
                end_of_rent: BlockNumber,
     ) -> Self {
         ResourceRentalInfo {
-            rent_unit_price,
             rent_duration,
             end_of_rent,
         }
     }
 
-    /// set rental unit price
-    pub fn set_rent_unit_price(&mut self, rent_unit_price: u128) -> &mut ResourceRentalInfo<BlockNumber> {
-        self.rent_unit_price = rent_unit_price;
-        self
-    }
 }
 
 pub trait ProviderInterface {
-    type BlockNumber: Parameter + AtLeast32BitUnsigned;
-    type AccountId;
+    // type BlockNumber: Parameter + AtLeast32BitUnsigned;
+    // type AccountId;
 
     /// get computing resource information
-    fn get_computing_resource_info(index: u64) -> ComputingResource<Self::BlockNumber, Self::AccountId>;
+    /// fn get_computing_resource_info(index: u64) -> ComputingResource<Self::BlockNumber, Self::AccountId>;
 
     /// update computing resource information
-    fn update_computing_resource
-    (index: u64, resource: ComputingResource<Self::BlockNumber, Self::AccountId>);
+    // fn update_computing_resource
+    // (index: u64, resource: ComputingResource<Self::BlockNumber, Self::AccountId>);
+
+    fn compute_providers_reward(total_reward: u128, index: EraIndex);
+
+    fn clear_points_info(index: EraIndex);
 }
 

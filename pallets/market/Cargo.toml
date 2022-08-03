@@ -4,7 +4,7 @@ description = 'FRAME pallet template for defining custom runtime logic.'
 edition = '2018'
 homepage = 'https://substrate.dev'
 license = 'Unlicense'
-name = 'pallet-resource-order'
+name = 'pallet-market'
 readme = 'README.md'
 repository = 'https://github.com/substrate-developer-hub/substrate-node-template/'
 version = '3.0.0'
@@ -44,7 +44,6 @@ std = [
     'log/std',
     'primitives/std',
     'sp-core/std',
-    'pallet-market/std',
 ]
 try-runtime = ['frame-support/try-runtime']
 [dependencies.codec]
@@ -98,11 +97,6 @@ version = '3.0.0'
 
 [dependencies]
 log = { version = "0.4.14", default-features = false }
-
-[dependencies.pallet-market]
-default-features = false
-path = '../market'
-version = '3.0.0'
 
 [dev-dependencies]
 pallet-balances = { version = "3.0.0", git = 'https://github.com/paritytech/substrate.git',tag = 'monthly-2021-07' }

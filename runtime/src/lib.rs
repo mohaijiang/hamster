@@ -56,9 +56,13 @@ use frame_system::{
 };
 use sp_authority_discovery::AuthorityId as AuthorityDiscoveryId;
 
-
 /// Import the template pallet.
 pub use pallet_template;
+
+pub use pallet_burn;
+
+/// Import the market pallet
+pub use pallet_market;
 
 use pallet_authority_discovery;
 
@@ -140,7 +144,7 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
 	//   `spec_version`, and `authoring_version` are the same between Wasm and native.
 	// This value is set to 100 to notify Polkadot-JS App (https://polkadot.js.org/apps) to use
 	//   the compatible custom types.
-	spec_version: 102,
+	spec_version: 104,
 	impl_version: 1,
 	apis: RUNTIME_API_VERSIONS,
 	transaction_version: 1,
@@ -380,6 +384,24 @@ impl pallet_template::Config for Runtime {
 	type BlockNumberToNumber = ConvertInto;
 }
 
+/// Configure the pallet-template in pallets/market.
+impl pallet_market::Config for Runtime {
+	type Event = Event;
+	type Currency = Balances;
+	type BlockNumberToNumber = ConvertInto;
+	type NumberToBalance = ConvertInto;
+	type BalanceToNumber = ConvertInto;
+	type UnixTime = Timestamp;
+	type GatewayInterface = Gateway;
+	type ProviderInterface = Provider;
+}
+
+impl pallet_burn::Config for Runtime {
+	type Event = Event;
+	type Currency = Balances;
+	type WeightInfo = pallet_burn::SubstrateWeight<Runtime>;
+}
+
 parameter_types! {
 	pub const UncleGenerations: BlockNumber = 5;
 }
@@ -458,7 +480,7 @@ impl<C> frame_system::offchain::SendTransactionTypes<C> for Runtime where
 }
 
 parameter_types! {
-	pub const SessionsPerEra: sp_staking::SessionIndex = 6;
+	pub const SessionsPerEra: sp_staking::SessionIndex = 2;
 	pub const BondingDuration: pallet_staking::EraIndex = 24 * 28;
 	pub const SlashDeferDuration: pallet_staking::EraIndex = 24 * 7; // 1/4 the bonding duration.
 	pub const RewardCurve: &'static PiecewiseLinear<'static> = &REWARD_CURVE;
@@ -490,6 +512,10 @@ impl pallet_staking::Config for Runtime {
 	type GenesisElectionProvider = 	onchain::OnChainSequentialPhragmen<
 		pallet_election_provider_multi_phase::OnChainConfig<Self>,
 	>;
+	type GatewayInterface = Gateway;
+	type MarketInterface = Market;
+	type NumberToBalance = ConvertInto;
+	type BalanceToNumber = ConvertInto;
 }
 
 parameter_types! {
@@ -588,13 +614,16 @@ impl pallet_resource_order::Config for Runtime{
 	type BalanceToNumber = ConvertInto;
 	type HealthCheckInterval = HealthCheckInterval;
 	type UnixTime = Timestamp;
+	type MarketInterface = Market;
 }
 
 impl pallet_provider::Config for Runtime {
 	type Event = Event;
 	type Currency = Balances;
 	type BalanceToNumber = ConvertInto;
+	type NumberToBalance = ConvertInto;
 	type ResourceInterval = ResourceInterval;
+	type MarketInterface = Market;
 }
 
 impl pallet_gateway::Config for Runtime {
@@ -603,6 +632,9 @@ impl pallet_gateway::Config for Runtime {
 	type BalanceToNumber = ConvertInto;
 	type GatewayNodeTimedRemovalInterval = GatewayNodeTimedRemovalInterval;
 	type GatewayNodeHeartbeatInterval = GatewayNodeHeartbeatInterval;
+	type MarketInterface = Market;
+	type NumberToBalance = ConvertInto;
+
 }
 
 parameter_types! {
@@ -638,7 +670,8 @@ construct_runtime!(
 		ResourceOrder: pallet_resource_order::{Pallet, Call, Storage, Event<T>},
 		Provider: pallet_provider::{Pallet, Call, Storage, Event<T>},
 		Gateway: pallet_gateway::{Pallet, Call, Storage, Event<T>},
-
+		Market: pallet_market::{Pallet, Call, Storage, Event<T>},
+		Burn: pallet_burn::{Pallet, Call, Storage, Event<T>},
 
 	}
 );
